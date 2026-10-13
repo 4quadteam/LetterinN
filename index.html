@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prototipe Surat Otomatis</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f3f0e8;--card:#fbfaf6;--ink:#1f1d1a;--mut:#6b675f;--line:#d9d4c7;--ac:#2f5d50;--acx:#fff;--warn:#a8520f;--ok:#2f6b3a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1917;--card:#242320;--ink:#ece8df;--mut:#a29d92;--line:#3a3833;--ac:#7db5a3;--acx:#12211c;--warn:#e0954f;--ok:#7fc48b}}
+:root[data-theme="dark"]{--bg:#1a1917;--card:#242320;--ink:#ece8df;--mut:#a29d92;--line:#3a3833;--ac:#7db5a3;--acx:#12211c;--warn:#e0954f;--ok:#7fc48b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:18px 20px 6px;max-width:1300px;margin:auto}
+header h1{margin:0;font-size:20px}header p{margin:2px 0 0;color:var(--mut);font-size:14px}
+main{max-width:1300px;margin:auto;padding:12px 20px 40px;display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:20px;align-items:start}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+details{background:var(--card);border:1px solid var(--line);border-radius:8px;margin-bottom:10px}
+summary{padding:11px 14px;font-weight:600;cursor:pointer}
+.body{padding:2px 14px 14px;display:grid;gap:10px}
+label{display:grid;gap:3px;font-size:13px;color:var(--mut)}
+label.c{display:flex;align-items:center;gap:8px;color:var(--ink)}
+input,select,textarea,button{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;min-width:0}
+input[type=range]{padding:0}input[type=checkbox]{width:auto}
+textarea{resize:vertical;min-height:64px}
+button{cursor:pointer;background:var(--card)}button.p{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row{display:grid;grid-template-columns:1fr 1fr 1.3fr auto;gap:6px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:6px 0;z-index:2}
+.chk{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:12px}
+.chk h3{margin:0 0 6px;font-size:14px}.chk ul{margin:0;padding:0;list-style:none;display:grid;gap:4px;font-size:13.5px}
+.chk li:before{content:"● ";color:var(--warn)}.chk li.i:before{color:var(--mut)}.chk li.ok:before{color:var(--ok)}
+.wrap{overflow-x:auto}
+.paper{background:#fff;color:#000;width:100%;max-width:210mm;min-height:297mm;margin:0 auto;padding:20mm 22mm;box-shadow:0 1px 8px rgba(0,0,0,.25);line-height:1.45}
+.paper p{margin:0 0 .7em;text-align:justify}
+.kop{display:flex;align-items:center;gap:12px;border-bottom:3px double #000;padding-bottom:8px;margin-bottom:14px}
+.kop .t{flex:1;text-align:center;line-height:1.3}.kop .t b{font-size:1.25em;display:block}
+.kop img{display:block;object-fit:contain}
+.paper table{border-collapse:collapse;margin:0 0 .8em 2em}.paper td{padding:1px 6px 1px 0;vertical-align:top}
+.paper .r{text-align:right}
+.ttd{margin-left:55%;text-align:left;margin-top:1.2em}.ttd img{display:block;mix-blend-mode:multiply;max-width:100%}
+canvas{background:#fff;border:1px dashed var(--line);border-radius:6px;width:100%;height:110px;touch-action:none}
+.h{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:16px}
+.hi{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.hi small{color:var(--mut);display:block}
+@media print{body *{visibility:hidden}.paper,.paper *{visibility:visible}.paper{position:absolute;left:0;top:0;width:100%;max-width:none;box-shadow:none;padding:0;min-height:0}@page{size:A4;margin:20mm 22mm}}
+.nav{display:flex;gap:8px;margin-top:12px}.nav button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+[hidden]{display:none!important}
+.blk{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;display:grid;gap:6px}
+</style>
+</head>
+<body>
+<header><h1>Prototipe Surat Otomatis</h1><p>Satu situs, dua kegunaan: membuat surat organisasi dan berlatih menyusun surat di SMK.</p><nav class="nav"><button data-v="vOrg" class="on">Surat Organisasi</button><button data-v="vSmk">Latihan Surat SMK</button></nav></header>
+<main id="vOrg">
+<section>
+<details open><summary>Kop surat dan tampilan</summary><div class="body">
+<label>Nama organisasi<input id="orgNama" value="ORGANISASI MAHASISWA"></label>
+<label>Alamat / keterangan kop<textarea id="orgAlamat">Gedung Sekretariat Ormawa, Kampus Utama
+Email: sekretariat@contoh.ac.id</textarea></label>
+<label>Logo kop<input type="file" id="logoFile" accept="image/*"></label>
+<label>Ukuran logo <input type="range" id="logoSize" min="40" max="150" value="80"></label>
+<div class="two"><label>Jenis huruf<select id="fontFam"><option>Times New Roman</option><option>Arial</option><option>Calibri</option><option>Cambria</option><option>Tahoma</option><option>Verdana</option><option>Georgia</option></select></label>
+<label>Ukuran huruf (pt)<input type="number" id="fontSize" min="9" max="18" value="12"></label></div>
+</div></details>
+
+<details open><summary>Isi surat</summary><div class="body">
+<label>Jenis surat<select id="jenis"><option value="tempat">Peminjaman tempat</option><option value="undangan">Undangan</option><option value="pemateri">Permohonan pemateri</option></select></label>
+<div class="two"><label>No. urut<input type="number" id="urut" value="1" min="1"></label><label>Kode nomor<input id="kode" value="ORM/X/2026"></label></div>
+<div class="two"><label>Lampiran<input id="lampiran" value="-"></label><label>Sapaan<select id="sapaan"><option>Bapak/Ibu</option><option>Saudara/i</option></select></label></div>
+<label>Perihal<input id="perihal"></label>
+<label>Ditujukan kepada (Yth.)<input id="yth" placeholder="mis. Dr. Ahmad Fauzi, M.Pd."></label>
+<label class="c"><input type="checkbox" id="alumni"> Penerima adalah alumni (cek gelar)</label>
+<label>Nama kegiatan<input id="kegiatan" placeholder="mis. Diklat Anggota Baru"></label>
+<label>Jadwal <span>(tanggal selesai boleh dikosongkan; tambah baris bila kegiatan dua tahap)</span></label>
+<div id="jadwal" class="body" style="padding:0"></div>
+<button type="button" id="addJ">+ Tambah jadwal</button>
+<label>Tempat<input id="tempat" placeholder="mis. Aula Gedung B"></label>
+<label class="c"><input type="checkbox" id="pending"> Tempat masih menunggu disposisi (pakai nama tempat sementara)</label>
+<label>Keperluan / keterangan tambahan<textarea id="keperluan"></textarea></label>
+<label class="c"><input type="checkbox" id="penutupAuto" checked> Penutup mengikuti jenis surat</label>
+<label>Penutup<textarea id="penutup"></textarea></label>
+<div class="two"><label>Kota<input id="kota" value="Malang"></label><label>Tanggal surat<input type="date" id="tglSurat"></label></div>
+</div></details>
+
+<details open><summary>Penandatangan</summary><div class="body">
+<div class="two"><label>Jabatan<input id="jabatan" value="Ketua Umum"></label><label>Nama<input id="nama"></label></div>
+<label>Unggah tanda tangan (gambar)<input type="file" id="ttdFile" accept="image/*"></label>
+<label>atau gambar langsung di sini<canvas id="cv" width="600" height="220"></canvas></label>
+<div class="two"><button type="button" id="clrTtd">Hapus tanda tangan</button><label>Ukuran <input type="range" id="ttdSize" min="30" max="130" value="70"></label></div>
+</div></details>
+</section>
+
+<section>
+<div class="bar"><button class="p" id="btnSave">Simpan ke riwayat</button><button id="btnPdf">Unduh PDF</button><button id="btnDoc">Unduh Word</button><button id="btnNew">Surat baru</button></div>
+<div class="chk" id="chk"></div>
+<div class="wrap"><div class="paper" id="paper"></div></div>
+<div class="h"><b>Riwayat surat</b><input id="cari" placeholder="Cari nomor, Yth, atau keperluan" style="width:100%;margin:8px 0"><div id="riw"></div></div>
+</section>
+</main>
+<main id="vSmk" hidden style="display:block;padding:0"><iframe id="smkFrame" title="Latihan Surat SMK" style="width:100%;border:0;display:block;min-height:900px"></iframe></main>
+<script type="text/html" id="smkSrc"><!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengecekan Surat Otomatis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFFDF7;
+    --rule:#BFD6EE;
+    --margin:#D6534A;
+    --ink:#26313D;
+    --ink-soft:#5A6774;
+    --ok:#3F7D58; --ok-bg:#E7F3EA;
+    --partial:#B9791E; --partial-bg:#FBEDD9;
+    --wrong:#B23A3A; --wrong-bg:#FBE6E4;
+    --line:#E4DFCF;
+    --card:#FFFFFF;
+    --page:#FFFFFF;
+    --shadow:rgba(29,43,58,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;padding:0 0 60px;}
+
+  header{padding:26px 32px 16px;border-bottom:2px solid var(--rule);position:relative;}
+  header::before{content:'';position:absolute;left:70px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.5;}
+  h1{font-family:'Baloo 2',sans-serif;font-size:23px;margin:0 0 4px;}
+  header p{margin:0;color:var(--ink-soft);font-size:13px;max-width:660px;}
+
+  .wrap{max-width:1040px;margin:0 auto;padding:20px 32px 0;}
+
+  .controls{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+  .control-box{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px;flex:1;min-width:250px;}
+  .control-box label{display:block;font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px;}
+  select{font-family:'Inter',sans-serif;font-size:13.5px;padding:8px 10px;border:1px solid var(--rule);border-radius:4px;background:#fff;color:var(--ink);}
+  #format-select{width:100%;}
+  .format-info{flex:1.6;min-width:280px;}
+  .format-info p{margin:0;font-size:12.8px;line-height:1.5;}
+
+  .toolbar{
+    position:sticky;top:0;z-index:5;
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    background:var(--paper);
+    padding:10px 0 8px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:6px;
+  }
+  .align-group{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px;align-items:center;}
+  .align-btn{
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+    padding:6px 10px;border-radius:4px;border:none;background:transparent;color:var(--ink-soft);cursor:pointer;
+  }
+  .align-btn:hover{background:#F0EEE3;}
+  .align-btn.active{background:var(--ink);color:#fff;}
+  #font-size-select{border:none;background:transparent;font-size:12px;font-weight:600;color:var(--ink-soft);padding:6px 4px;cursor:pointer;}
+  .toolbar-hint{font-size:11.5px;color:var(--ink-soft);font-style:italic;}
+  .btn{
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+    padding:9px 16px;border-radius:5px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;
+  }
+  .btn:hover{background:var(--ink);color:#fff;}
+  .btn-primary{background:var(--margin);border-color:var(--margin);color:#fff;}
+  .btn-primary:hover{background:#B33F37;border-color:#B33F37;}
+  .btn-small{font-size:11px;padding:5px 10px;font-weight:600;}
+  .score-pill{margin-left:auto;font-weight:700;font-size:13.5px;padding:8px 14px;border-radius:20px;background:var(--card);border:1.5px solid var(--line);}
+  .toolbar-note{width:100%;font-size:11px;color:var(--ink-soft);margin:2px 0 14px;}
+
+  .asset-row{display:flex;gap:10px;justify-content:center;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+  .asset-row .size-label{font-size:11px;color:var(--ink-soft);}
+
+  .page{
+    width:100%;max-width:740px;margin:0 auto;
+    background:var(--page);box-shadow:0 10px 30px var(--shadow);
+    padding:44px 54px 56px;font-family:'Source Serif 4',serif;color:var(--ink);
+  }
+  .kop-wrap{display:flex;align-items:center;justify-content:center;gap:12px;}
+  #kop-logo{height:52px;max-width:220px;object-fit:contain;display:none;}
+  .kop{text-align:center;font-weight:700;font-size:17px;outline:none;flex:1;}
+  .kop:empty:before{content:attr(data-placeholder);color:#B8B2A2;font-style:italic;font-weight:400;}
+  .kop-rule{border-bottom:3px solid #1A1A1A;margin:8px 0 18px;}
+
+  [data-part]{
+    outline:none;
+    min-height:1.5em;
+    padding:3px 8px;
+    margin-bottom:8px;
+    line-height:1.45;
+    font-size:13.5px;
+    border-radius:3px;
+    white-space:pre-wrap;
+  }
+  [data-part]:empty:before{content:attr(data-placeholder);color:#B8B2A2;font-style:italic;white-space:pre-wrap;}
+  [data-part]:focus{box-shadow:0 0 0 1.5px var(--ink-soft);}
+  [data-part="tanda_tangan"]{min-height:6em;}
+  .ttd-photo{max-height:70px;object-fit:contain;}
+
+  .meta-flex{display:flex;gap:18px;align-items:flex-start;margin-bottom:2px;}
+  .meta-left{flex:1;min-width:0;}
+  .meta-right{flex:0 0 230px;}
+
+  .blk-ok{background:var(--ok-bg);box-shadow:inset 3px 0 0 var(--ok);}
+  .blk-warn{background:var(--partial-bg);box-shadow:inset 3px 0 0 var(--partial);}
+  .blk-error{background:var(--wrong-bg);box-shadow:inset 3px 0 0 var(--wrong);}
+  [data-part]:focus.blk-ok{box-shadow:inset 3px 0 0 var(--ok),0 0 0 1.5px var(--ink-soft);}
+  [data-part]:focus.blk-warn{box-shadow:inset 3px 0 0 var(--partial),0 0 0 1.5px var(--ink-soft);}
+  [data-part]:focus.blk-error{box-shadow:inset 3px 0 0 var(--wrong),0 0 0 1.5px var(--ink-soft);}
+
+  .feedback{margin-top:22px;max-width:740px;margin-left:auto;margin-right:auto;}
+  .fb-card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:14px;display:none;}
+  .fb-card.show{display:block;}
+  .fb-card h3{font-size:13px;margin:0 0 10px;}
+  .fb-card ul{margin:0;padding-left:18px;}
+  .fb-card li{margin-bottom:8px;font-size:13px;line-height:1.5;}
+  .fb-card li b{font-weight:600;}
+  li.error{color:var(--wrong);}
+  li.saran{color:var(--partial);}
+  .fix-btn{margin-left:8px;font-size:11px;padding:2px 9px;border-radius:10px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer;font-weight:600;}
+  .fix-btn:hover{background:currentColor;color:#fff;}
+
+  .legend{display:flex;gap:16px;font-size:11.5px;color:var(--ink-soft);max-width:740px;margin:10px auto 0;flex-wrap:wrap;}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  @media print{
+    header,.controls,.toolbar,.toolbar-note,.asset-row,.legend,.feedback{display:none !important;}
+    body{background:#fff;padding:0;}
+    .wrap{padding:0;max-width:none;}
+    .page{box-shadow:none;width:100%;max-width:none;padding:18mm 20mm;margin:0;}
+    [data-part]{background:none !important;box-shadow:none !important;}
+    @page{size:A4;margin:0;}
+  }
+
+  @media (max-width:760px){
+    header::before{display:none;}
+    .page{padding:30px 20px 44px;}
+    .toolbar{position:static;}
+    .meta-flex{flex-direction:column;}
+    .meta-right{flex:1;width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pengecekan Surat Otomatis</h1>
+  <p>Tulis surat langsung pada template di bawah, atur perataan, ukuran huruf, dan cetak tebal tiap bagian, lalu klik <b>Periksa Surat</b>. Sistem menandai kesalahan format dan kesalahan penulisan, termasuk pada isi surat.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="controls">
+    <div class="control-box">
+      <label for="format-select">Bentuk Surat</label>
+      <select id="format-select">
+        <option value="full_block">Bentuk Lurus Penuh (Full Block Style)</option>
+        <option value="block">Bentuk Lurus (Block Style)</option>
+        <option value="semi_block">Bentuk Setengah Lurus (Semi Block Style)</option>
+        <option value="indented">Bentuk Lekuk (Indented Style)</option>
+        <option value="resmi">Bentuk Resmi Indonesia</option>
+      </select>
+    </div>
+    <div class="control-box format-info">
+      <label>Ciri Utama</label>
+      <p id="format-desc"></p>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="align-group" id="align-group">
+      <button class="align-btn" data-zone="kiri">Rata Kiri</button>
+      <button class="align-btn" data-zone="menjorok">Menjorok</button>
+      <button class="align-btn" data-zone="tengah">Tengah</button>
+      <button class="align-btn" data-zone="kanan">Rata Kanan</button>
+    </div>
+    <div class="align-group">
+      <button class="align-btn" id="btn-bold" style="font-weight:700;" title="Tebal">B</button>
+      <button class="align-btn" id="btn-italic" style="font-style:italic;" title="Miring">I</button>
+      <button class="align-btn" id="btn-underline" style="text-decoration:underline;" title="Garis bawah">U</button>
+      <select id="font-size-select" title="Ukuran huruf">
+        <option value="">Ukuran</option>
+        <option value="10">10pt</option>
+        <option value="11">11pt</option>
+        <option value="12">12pt</option>
+        <option value="13">13pt</option>
+        <option value="14">14pt</option>
+        <option value="16">16pt</option>
+        <option value="18">18pt</option>
+        <option value="20">20pt</option>
+      </select>
+      <select id="font-family-select" title="Jenis huruf">
+        <option value="">Huruf</option>
+        <option value="'Source Serif 4',serif">Source Serif</option>
+        <option value="'Times New Roman',Times,serif">Times New Roman</option>
+        <option value="Georgia,serif">Georgia</option>
+        <option value="Arial,Helvetica,sans-serif">Arial</option>
+        <option value="Calibri,'Segoe UI',sans-serif">Calibri</option>
+        <option value="'Courier New',monospace">Courier New</option>
+      </select>
+    </div>
+    <div class="align-group">
+      <button class="align-btn" id="btn-ul" title="Daftar bertitik">• List</button>
+      <button class="align-btn" id="btn-ol" title="Daftar bernomor">1. List</button>
+      <button class="align-btn" id="btn-undo" title="Urungkan (Ctrl+Z)">↶ Undo</button>
+      <button class="align-btn" id="btn-redo" title="Ulangi (Ctrl+Y)">↷ Redo</button>
+      <button class="align-btn" id="btn-clear-format" title="Hapus format">Hapus Format</button>
+    </div>
+    <span class="toolbar-hint" id="toolbar-hint">Sorot teks pada surat, lalu gunakan tombol di atas — layaknya pengolah kata (Word).</span>
+    <button class="btn" id="btn-clear">Bersihkan Surat</button>
+    <button class="btn" id="btn-word">Unduh Word</button>
+    <button class="btn" id="btn-pdf">Unduh PDF</button>
+    <button class="btn btn-primary" id="btn-check">Periksa Surat</button>
+    <div class="score-pill" id="score-pill">Skor: —</div>
+  </div>
+  <div class="toolbar-note">"Unduh PDF" membuka dialog cetak bawaan browser — pilih tujuan cetak "Save as PDF". "Unduh Word" langsung menyimpan file .doc yang siap dibuka di Microsoft Word. Keduanya berjalan tanpa aplikasi tambahan. Perataan, tebal/miring/garis bawah, daftar, ukuran, dan jenis huruf berlaku untuk teks yang sedang disorot — seperti menulis di Word.</div>
+
+  <div class="asset-row">
+    <button class="btn btn-small" id="btn-logo" type="button">+ Tambah Logo</button>
+    <button class="btn btn-small" id="btn-logo-remove" type="button" style="display:none;">Hapus Logo</button>
+    <span class="size-label" id="logo-size-label" style="display:none;">Ukuran logo</span>
+    <input type="range" id="logo-size" min="28" max="160" value="52" style="display:none;">
+    <input type="file" id="logo-input" accept="image/*" style="display:none;">
+  </div>
+  <div class="asset-row">
+    <button class="btn btn-small" id="btn-ttd" type="button">+ Tanda Tangan (Foto)</button>
+    <button class="btn btn-small" id="btn-ttd-remove" type="button" style="display:none;">Hapus Tanda Tangan</button>
+    <input type="file" id="ttd-input" accept="image/*" style="display:none;">
+  </div>
+
+  <div class="page" id="page">
+    <div class="kop-wrap">
+      <img id="kop-logo" src="" alt="Logo">
+      <div class="kop" contenteditable="true" data-placeholder="Nama Sekolah / Organisasi"></div>
+    </div>
+    <div class="kop-rule"></div>
+
+    <div class="meta-flex">
+      <div class="meta-left">
+        <div data-part="nomor" contenteditable="true" data-placeholder="Nomor : ..."></div>
+        <div data-part="lampiran" contenteditable="true" data-placeholder="Lampiran : - (opsional)"></div>
+        <div data-part="perihal" contenteditable="true" data-placeholder="Perihal : ..."></div>
+      </div>
+      <div class="meta-right">
+        <div data-part="tanggal" contenteditable="true" data-placeholder="Kota, Tanggal Bulan Tahun"></div>
+      </div>
+    </div>
+
+    <div data-part="alamat_tujuan" contenteditable="true" data-placeholder="Yth. ...&#10;...&#10;di tempat" style="margin-top:14px;"></div>
+    <div data-part="salam_pembuka" contenteditable="true" data-placeholder="Dengan hormat,"></div>
+    <div data-part="paragraf_pembuka" contenteditable="true" data-placeholder="Tuliskan alinea pembuka..."></div>
+    <div data-part="isi_surat" contenteditable="true" data-placeholder="Tuliskan isi pokok surat..."></div>
+    <div data-part="paragraf_penutup" contenteditable="true" data-placeholder="Tuliskan alinea penutup..."></div>
+    <div data-part="salam_penutup" contenteditable="true" data-placeholder="Hormat kami,"></div>
+    <div data-part="tanda_tangan" contenteditable="true" data-placeholder="Jabatan Penandatangan&#10;&#10;(klik &quot;+ Tanda Tangan&quot; untuk menambah foto di sini)&#10;&#10;Nama Terang" style="margin-top:10px;"></div>
+    <div data-part="tembusan" contenteditable="true" data-placeholder="Tembusan: - (opsional)" style="margin-top:10px;font-size:12px;"></div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--ok)"></span> Sudah benar</span>
+    <span><span class="dot" style="background:var(--partial)"></span> Saran perbaikan</span>
+    <span><span class="dot" style="background:var(--wrong)"></span> Kesalahan</span>
+  </div>
+
+  <div class="feedback">
+    <div class="fb-card" id="fb-format">
+      <h3>Kesalahan Format &amp; Perataan</h3>
+      <ul id="fb-format-list"></ul>
+    </div>
+    <div class="fb-card" id="fb-writing">
+      <h3>Kesalahan &amp; Saran Penulisan</h3>
+      <ul id="fb-writing-list"></ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const ZONE_LABEL = {kiri:'Rata Kiri', menjorok:'Menjorok', tengah:'Tengah', kanan:'Rata Kanan'};
+
+  const RULES = {
+    full_block: { tanggal:'kiri', nomor:'kiri', lampiran:'kiri', perihal:'kiri', alamat_tujuan:'kiri',
+      salam_pembuka:'kiri', paragraf_pembuka:'kiri', isi_surat:'kiri', paragraf_penutup:'kiri',
+      salam_penutup:'kiri', tanda_tangan:'kiri', tembusan:'kiri' },
+    block: { tanggal:'kanan', nomor:'kiri', lampiran:'kiri', perihal:'kiri', alamat_tujuan:'kiri',
+      salam_pembuka:'kiri', paragraf_pembuka:'kiri', isi_surat:'kiri', paragraf_penutup:'kiri',
+      salam_penutup:'kanan', tanda_tangan:'kanan', tembusan:'kiri' },
+    semi_block: { tanggal:'kanan', nomor:'kiri', lampiran:'kiri', perihal:'kiri', alamat_tujuan:'kiri',
+      salam_pembuka:'kiri', paragraf_pembuka:'menjorok', isi_surat:'menjorok', paragraf_penutup:'menjorok',
+      salam_penutup:'kanan', tanda_tangan:'kanan', tembusan:'kiri' },
+    indented: { tanggal:'kanan', nomor:'kiri', lampiran:'kiri', perihal:'kiri', alamat_tujuan:'menjorok',
+      salam_pembuka:'kiri', paragraf_pembuka:'menjorok', isi_surat:'menjorok', paragraf_penutup:'menjorok',
+      salam_penutup:'kanan', tanda_tangan:'kanan', tembusan:'kiri' },
+    resmi: { tanggal:'kanan', nomor:'kiri', lampiran:'kiri', perihal:'kiri', alamat_tujuan:'kiri',
+      salam_pembuka:'kiri', paragraf_pembuka:'kiri', isi_surat:'kiri', paragraf_penutup:'kiri',
+      salam_penutup:'tengah', tanda_tangan:'tengah', tembusan:'kiri' }
+  };
+
+  const FORMAT_DESC = {
+    full_block:'Semua bagian surat rata kiri saja, termasuk tanggal dan tanda tangan — tanpa bagian yang menjorok, di kanan, atau di tengah.',
+    block:'Serupa Lurus Penuh, hanya saja Tanggal, Salam Penutup, dan Tanda Tangan diletakkan di sebelah kanan. Bagian lain tetap rata kiri.',
+    semi_block:'Seperti Block Style, namun setiap alinea (pembuka, isi, penutup) dimulai menjorok ke dalam, bukan rata kiri penuh.',
+    indented:'Seperti Semi Block, dengan tambahan: Alamat Tujuan ditulis berlekuk/menjorok, sejalan dengan alinea yang juga menjorok.',
+    resmi:'Dipakai pada surat dinas/pemerintahan. Alinea tetap rata kiri, sementara Salam Penutup dan Tanda Tangan diletakkan di tengah.'
+  };
+
+  const KNOWN_OPEN = ['dengan hormat','salam hormat','salam sejahtera'];
+  const KNOWN_CLOSE = ['hormat kami','hormat saya','wassalam'];
+
+  function titleCaseFirstOnly(t){
+    const words = t.trim().split(/\s+/);
+    return words.map((w,i)=> i===0 ? (w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()) : w.toLowerCase()).join(' ');
+  }
+
+  function checkSalam(text, knownPhrases){
+    const issues = []; const t = text.trim(); if(!t) return issues;
+    const bare = t.replace(/[,.]$/,'').toLowerCase().trim();
+    if(knownPhrases.includes(bare)){
+      const canonical = titleCaseFirstOnly(t.replace(/[,.]$/,'')) + ',';
+      if(t !== canonical){
+        issues.push({
+          severity: /\.$/.test(t) ? 'error' : 'saran',
+          message: `Penulisan yang tepat: "${canonical}" — huruf kapital hanya pada huruf pertama, diakhiri koma.`,
+          fixFn: ()=> canonical
+        });
+      }
+    } else {
+      if(/\.$/.test(t)) issues.push({severity:'error', message:'Akhiri dengan tanda koma (,), bukan titik.', fixFn: txt=> txt.trim().replace(/\.$/,',')});
+      else if(!/,$/.test(t)) issues.push({severity:'saran', message:'Biasanya diakhiri tanda koma (,).', fixFn: txt=> txt.trim()+','});
+      if(t === t.toUpperCase() && /[A-Z]/.test(t)) issues.push({severity:'saran', message:'Gunakan huruf kapital hanya di awal kalimat, bukan semuanya.', fixFn: txt=> titleCaseFirstOnly(txt)});
+    }
+    return issues;
+  }
+
+  function checkPerihal(text){
+    const issues=[]; const t=text.trim(); if(!t) return issues;
+    if(/\.$/.test(t)) issues.push({severity:'error',message:'Sebaiknya tanpa tanda titik di akhir.', fixFn: txt=> txt.trim().replace(/\.$/,'')});
+    if(/^tentang\s/i.test(t)) issues.push({severity:'saran',message:'Lebih natural langsung menyebut pokok surat, tanpa diawali kata "Tentang".', fixFn: txt=> txt.trim().replace(/^tentang\s+/i,'')});
+    return issues;
+  }
+
+  function checkNomor(text){
+    const issues=[]; const t=text.trim(); if(!t) return issues;
+    if(/\.$/.test(t)) issues.push({severity:'error',message:'Sebaiknya tanpa tanda titik di akhir.', fixFn: txt=> txt.trim().replace(/\.$/,'')});
+    if(/^no\.?\s/i.test(t)) issues.push({severity:'saran',message:'Tulis lengkap "Nomor", bukan disingkat "No.".', fixFn: txt=> txt.trim().replace(/^no\.?\s*/i,'Nomor ')});
+    if(!/nomor/i.test(t)) issues.push({severity:'error', message:'Awali baris ini dengan kata "Nomor".'});
+    if(!/:/.test(t)) issues.push({severity:'saran', message:'Gunakan tanda titik dua (:) setelah kata "Nomor".'});
+    return issues;
+  }
+
+  function checkLampiran(text){
+    const issues=[]; const t=text.trim(); if(!t) return issues;
+    if(!/lampiran/i.test(t)) issues.push({severity:'error', message:'Awali baris ini dengan kata "Lampiran".'});
+    if(/\.$/.test(t)) issues.push({severity:'error',message:'Sebaiknya tanpa tanda titik di akhir.', fixFn: txt=> txt.trim().replace(/\.$/,'')});
+    if(/\d/.test(t)) issues.push({severity:'saran', message:'Jumlah lampiran lebih baku ditulis dengan huruf, mis. "Satu lembar", bukan angka.'});
+    return issues;
+  }
+
+  function checkAlamatTujuan(text){
+    const issues=[]; const t=text.trim(); if(!t) return issues;
+    if(!/yth\.?/i.test(t)) issues.push({severity:'error', message:'Awali dengan "Yth." (Yang terhormat).'});
+    if(/^kepada\s+yth/i.test(t)) issues.push({severity:'saran', message:'Cukup gunakan "Yth." saja — "Kepada" di depannya dianggap pemborosan kata.', fixFn: txt=> txt.replace(/^kepada\s+/i,'')});
+    return issues;
+  }
+
+  function checkTanggal(text){
+    const issues=[]; const t=text.trim(); if(!t) return issues;
+    const bulanRegex = /(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)/i;
+    if(!bulanRegex.test(t)) issues.push({severity:'error', message:'Tulis dengan nama bulan lengkap, mis. "19 September 2026", bukan angka semua.'});
+    if(/\.$/.test(t)) issues.push({severity:'saran', message:'Umumnya ditulis tanpa tanda titik di akhir.', fixFn: txt=> txt.trim().replace(/\.$/,'')});
+    return issues;
+  }
+
+  function checkParagraf(text){
+    const issues=[]; const t=text; if(!t.trim()) return issues;
+
+    const sentenceRegex = /(^\s*|[.!?]\s+)([a-z])/g;
+    if(sentenceRegex.test(t)){
+      issues.push({
+        severity:'saran',
+        message:'Awali tiap kalimat dengan huruf kapital.',
+        fixFn: txt=> txt.replace(/(^\s*|[.!?]\s+)([a-z])/g, (m,p1,p2)=> p1+p2.toUpperCase())
+      });
+    }
+
+    if(!/[.!?]\s*$/.test(t.trim())){
+      issues.push({severity:'saran', message:'Akhiri paragraf dengan tanda baca (titik).', fixFn: txt=> txt.trim()+'.'});
+    }
+
+    const honRegex = /\b(bapak|ibu|saudara|anda)\b/g;
+    const matches = t.match(honRegex);
+    if(matches && matches.length){
+      const unique = [...new Set(matches)];
+      issues.push({
+        severity:'saran',
+        message:`Kata sapaan (${unique.join(', ')}) ditulis lebih baku dengan huruf kapital, mis. "Bapak/Ibu".`,
+        fixFn: txt=> txt.replace(/\b(bapak|ibu|saudara|anda)\b/g, w=> w.charAt(0).toUpperCase()+w.slice(1))
+      });
+    }
+    return issues;
+  }
+
+  function checkNamaBlock(text){
+    const issues=[]; const t=text.trim(); if(!t) return issues;
+    if(t === t.toUpperCase() && /[A-Z]/.test(t)){
+      issues.push({severity:'saran', message:'Gunakan huruf kapital hanya di awal kata, bukan semuanya.', fixFn: txt=> txt.split('\n').map(line=> line ? titleCaseFirstOnly(line) : line).join('\n')});
+    }
+    return issues;
+  }
+
+  const PART_DEFS = [
+    {key:'tanggal', label:'Tanggal Surat', required:true, checker:checkTanggal},
+    {key:'nomor', label:'Nomor Surat', required:true, checker:checkNomor},
+    {key:'lampiran', label:'Lampiran', required:false, checker:checkLampiran},
+    {key:'perihal', label:'Perihal', required:true, checker:checkPerihal},
+    {key:'alamat_tujuan', label:'Alamat Tujuan', required:true, checker:checkAlamatTujuan},
+    {key:'salam_pembuka', label:'Salam Pembuka', required:true, checker:t=>checkSalam(t, KNOWN_OPEN)},
+    {key:'paragraf_pembuka', label:'Alinea Pembuka', required:true, checker:checkParagraf},
+    {key:'isi_surat', label:'Isi / Alinea Pokok', required:true, checker:checkParagraf},
+    {key:'paragraf_penutup', label:'Alinea Penutup', required:true, checker:checkParagraf},
+    {key:'salam_penutup', label:'Salam Penutup', required:true, checker:t=>checkSalam(t, KNOWN_CLOSE)},
+    {key:'tanda_tangan', label:'Tanda Tangan & Nama Terang', required:true, checker:checkNamaBlock},
+    {key:'tembusan', label:'Tembusan', required:false, checker:()=>[]}
+  ];
+
+  const $ = id => document.getElementById(id);
+  let format = 'full_block';
+  let activeEl = null;
+  let lastRange = null;
+
+  try{ document.execCommand('styleWithCSS', false, true); }catch(e){}
+
+  function setAlign(el, zone){
+    el.style.textIndent = '';
+    if(zone === 'kiri') el.style.textAlign = 'left';
+    else if(zone === 'tengah') el.style.textAlign = 'center';
+    else if(zone === 'kanan') el.style.textAlign = 'right';
+    else if(zone === 'menjorok'){ el.style.textAlign = 'left'; el.style.textIndent = '2.5em'; }
+  }
+  function getZone(el){
+    const align = el.style.textAlign || 'left';
+    const indent = el.style.textIndent;
+    if(indent && indent !== '') return 'menjorok';
+    if(align === 'center') return 'tengah';
+    if(align === 'right') return 'kanan';
+    return 'kiri';
+  }
+
+  function refreshToolbar(){
+    const buttons = document.querySelectorAll('.align-btn[data-zone]');
+    if(!activeEl){
+      buttons.forEach(b=>b.classList.remove('active'));
+      $('toolbar-hint').style.display = 'inline';
+      return;
+    }
+    $('toolbar-hint').style.display = 'none';
+    const z = getZone(activeEl);
+    buttons.forEach(b=> b.classList.toggle('active', b.dataset.zone === z));
+  }
+
+  document.addEventListener('focusin', (e)=>{
+    const wrap = e.target.closest('[data-part]');
+    if(wrap){ activeEl = wrap; refreshToolbar(); }
+  });
+
+  function trackSelection(){
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount > 0){
+      const r = sel.getRangeAt(0);
+      const node = r.commonAncestorContainer;
+      const host = node.nodeType === 3 ? node.parentElement : node;
+      const el = host ? host.closest('[data-part]') : null;
+      if(el) lastRange = r.cloneRange();
+    }
+  }
+  document.addEventListener('mouseup', trackSelection);
+  document.addEventListener('keyup', trackSelection);
+
+  function restoreSelection(){
+    if(lastRange){
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(lastRange);
+    }
+  }
+
+  document.querySelectorAll('.align-btn[data-zone]').forEach(btn=>{
+    btn.addEventListener('mousedown', (e)=> e.preventDefault());
+    btn.addEventListener('click', ()=>{
+      if(!activeEl) return;
+      setAlign(activeEl, btn.dataset.zone);
+      refreshToolbar();
+    });
+  });
+
+  $('btn-bold').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-bold').addEventListener('click', ()=>{
+    restoreSelection();
+    try{ document.execCommand('bold'); }catch(e){}
+  });
+
+  $('font-size-select').addEventListener('change', (e)=>{
+    const val = e.target.value;
+    if(!val){ return; }
+    restoreSelection();
+    try{
+      document.execCommand('fontSize', false, '7');
+      document.querySelectorAll('[data-part] font[size="7"], .kop font[size="7"]').forEach(f=>{
+        f.removeAttribute('size');
+        f.style.fontSize = val + 'pt';
+      });
+    }catch(err){}
+    e.target.value = '';
+  });
+
+  $('btn-italic').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-italic').addEventListener('click', ()=>{ restoreSelection(); try{ document.execCommand('italic'); }catch(e){} });
+
+  $('btn-underline').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-underline').addEventListener('click', ()=>{ restoreSelection(); try{ document.execCommand('underline'); }catch(e){} });
+
+  $('btn-ul').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-ul').addEventListener('click', ()=>{ restoreSelection(); try{ document.execCommand('insertUnorderedList'); }catch(e){} });
+
+  $('btn-ol').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-ol').addEventListener('click', ()=>{ restoreSelection(); try{ document.execCommand('insertOrderedList'); }catch(e){} });
+
+  $('btn-undo').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-undo').addEventListener('click', ()=>{ try{ document.execCommand('undo'); }catch(e){} });
+
+  $('btn-redo').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-redo').addEventListener('click', ()=>{ try{ document.execCommand('redo'); }catch(e){} });
+
+  $('btn-clear-format').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-clear-format').addEventListener('click', ()=>{ restoreSelection(); try{ document.execCommand('removeFormat'); }catch(e){} });
+
+  $('font-family-select').addEventListener('change', (e)=>{
+    const val = e.target.value;
+    if(!val){ return; }
+    restoreSelection();
+    try{ document.execCommand('fontName', false, val); }catch(err){}
+    e.target.value = '';
+  });
+
+  document.querySelectorAll('[data-part], .kop').forEach(el=>{
+    el.addEventListener('blur', ()=>{
+      if(el.innerText.trim() === '') el.innerHTML = '';
+    });
+  });
+
+  function renderInfo(){ $('format-desc').textContent = FORMAT_DESC[format]; }
+  $('format-select').addEventListener('change', (e)=>{ format = e.target.value; renderInfo(); });
+
+  // ---- logo upload + resize ----
+  $('btn-logo').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-logo').addEventListener('click', ()=> $('logo-input').click());
+  $('logo-input').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      $('kop-logo').src = ev.target.result;
+      $('kop-logo').style.display = 'inline-block';
+      $('kop-logo').style.height = $('logo-size').value + 'px';
+      $('btn-logo-remove').style.display = 'inline-block';
+      $('logo-size').style.display = 'inline-block';
+      $('logo-size-label').style.display = 'inline';
+    };
+    reader.readAsDataURL(file);
+  });
+  $('logo-size').addEventListener('input', (e)=>{
+    $('kop-logo').style.height = e.target.value + 'px';
+  });
+  $('btn-logo-remove').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-logo-remove').addEventListener('click', ()=>{
+    $('kop-logo').src = '';
+    $('kop-logo').style.display = 'none';
+    $('btn-logo-remove').style.display = 'none';
+    $('logo-size').style.display = 'none';
+    $('logo-size-label').style.display = 'none';
+    $('logo-input').value = '';
+  });
+
+  // ---- signature photo (tanda tangan digital) ----
+  $('btn-ttd').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-ttd').addEventListener('click', ()=> $('ttd-input').click());
+  $('ttd-input').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      const block = document.querySelector('[data-part="tanda_tangan"]');
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      img.className = 'ttd-photo';
+      const useRange = lastRange && block.contains(lastRange.commonAncestorContainer);
+      if(useRange){
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(lastRange);
+        document.execCommand('insertHTML', false, img.outerHTML);
+      } else {
+        block.appendChild(document.createElement('br'));
+        block.appendChild(img);
+      }
+      $('btn-ttd-remove').style.display = 'inline-block';
+    };
+    reader.readAsDataURL(file);
+  });
+  $('btn-ttd-remove').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-ttd-remove').addEventListener('click', ()=>{
+    document.querySelectorAll('.ttd-photo').forEach(img=> img.remove());
+    $('btn-ttd-remove').style.display = 'none';
+  });
+
+  $('btn-clear').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-clear').addEventListener('click', ()=>{
+    document.querySelectorAll('[data-part], .kop').forEach(el=>{
+      el.innerHTML = '';
+      el.style.textAlign = '';
+      el.style.textIndent = '';
+      el.classList.remove('blk-ok','blk-warn','blk-error');
+    });
+    $('kop-logo').src=''; $('kop-logo').style.display='none';
+    $('btn-logo-remove').style.display='none'; $('logo-size').style.display='none'; $('logo-size-label').style.display='none';
+    $('btn-ttd-remove').style.display='none';
+    $('fb-format').classList.remove('show');
+    $('fb-writing').classList.remove('show');
+    $('score-pill').textContent = 'Skor: —';
+    activeEl = null; lastRange = null;
+    refreshToolbar();
+  });
+
+  $('btn-pdf').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-pdf').addEventListener('click', ()=> window.print());
+
+  function buildCleanPageHtml(){
+    const clone = document.getElementById('page').cloneNode(true);
+    clone.querySelectorAll('[contenteditable]').forEach(el=> el.removeAttribute('contenteditable'));
+    clone.removeAttribute && clone.removeAttribute('contenteditable');
+    clone.querySelectorAll('.blk-ok,.blk-warn,.blk-error').forEach(el=>{
+      el.classList.remove('blk-ok','blk-warn','blk-error');
+    });
+    return clone.outerHTML;
+  }
+
+  $('btn-word').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-word').addEventListener('click', ()=>{
+    const pageHtml = buildCleanPageHtml();
+    const htmlDoc = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="utf-8"><title>Surat</title>
+    <style>
+      body{font-family:'Times New Roman',serif;font-size:13pt;color:#1a1a1a;}
+      .kop{text-align:center;font-weight:700;font-size:17px;}
+      .kop-rule{border-bottom:3px solid #1A1A1A;margin:8px 0 18px;}
+      [data-part]{margin-bottom:8px;line-height:1.45;white-space:pre-wrap;}
+      img{max-width:220px;}
+    </style></head>
+    <body>${pageHtml}</body></html>`;
+    const blob = new Blob(['\ufeff', htmlDoc], {type:'application/msword'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'surat.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=> URL.revokeObjectURL(url), 1500);
+  });
+
+  function renderIssueList(container, list){
+    container.innerHTML = '';
+    if(list.length === 0){
+      const li = document.createElement('li');
+      li.style.listStyle = 'none'; li.style.marginLeft = '-18px';
+      li.style.color = 'var(--ink-soft)'; li.style.fontStyle = 'italic';
+      li.textContent = 'Bagian ini sudah sesuai. Mantap!';
+      container.appendChild(li);
+      return;
+    }
+    list.forEach(item=>{
+      const li = document.createElement('li');
+      li.className = item.severity;
+      const b = document.createElement('b');
+      b.textContent = item.label + ': ';
+      li.appendChild(b);
+      li.appendChild(document.createTextNode(item.message));
+      if(item.apply){
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'fix-btn';
+        btn.textContent = 'Perbaiki';
+        btn.addEventListener('click', ()=>{ item.apply(); periksaSurat(); });
+        li.appendChild(btn);
+      }
+      container.appendChild(li);
+    });
+  }
+
+  function periksaSurat(){
+    let totalRequired = 0, okCount = 0;
+    const formatIssues = [];
+    const writingIssues = [];
+
+    PART_DEFS.forEach(def=>{
+      const el = document.querySelector(`[data-part="${def.key}"]`);
+      const text = el.innerText.trim();
+      el.classList.remove('blk-ok','blk-warn','blk-error');
+
+      if(!text){
+        if(def.required){
+          formatIssues.push({label:def.label, severity:'error', message:'Bagian ini masih kosong.'});
+          el.classList.add('blk-error');
+        }
+        return;
+      }
+      if(def.required) totalRequired++;
+
+      let hasError = false, hasWarn = false;
+
+      const correctZone = RULES[format][def.key];
+      if(correctZone){
+        const actualZone = getZone(el);
+        if(actualZone !== correctZone){
+          formatIssues.push({
+            label:def.label, severity:'error',
+            message:`Seharusnya ${ZONE_LABEL[correctZone]}, saat ini ${ZONE_LABEL[actualZone]}.`,
+            apply: ()=> setAlign(el, correctZone)
+          });
+          hasError = true;
+        }
+      }
+
+      const issues = def.checker(text);
+      issues.forEach(iss=>{
+        writingIssues.push({
+          label:def.label, severity:iss.severity, message:iss.message,
+          apply: iss.fixFn ? ()=>{ el.innerText = iss.fixFn(el.innerText); } : null
+        });
+        if(iss.severity === 'error') hasError = true; else hasWarn = true;
+      });
+
+      if(hasError) el.classList.add('blk-error');
+      else if(hasWarn) el.classList.add('blk-warn');
+      else { el.classList.add('blk-ok'); if(def.required) okCount++; }
+    });
+
+    $('score-pill').textContent = `Skor: ${okCount}/${totalRequired} bagian benar sepenuhnya`;
+    renderIssueList($('fb-format-list'), formatIssues);
+    $('fb-format').classList.add('show');
+    renderIssueList($('fb-writing-list'), writingIssues);
+    $('fb-writing').classList.add('show');
+  }
+
+  $('btn-check').addEventListener('mousedown', e=> e.preventDefault());
+  $('btn-check').addEventListener('click', periksaSurat);
+
+  renderInfo();
+  refreshToolbar();
+})();
+<\/script>
+
+</body>
+</html>
+</script>
+<script>
+const $=id=>document.getElementById(id);
+const IDS=['orgNama','orgAlamat','logoSize','fontFam','fontSize','jenis','urut','kode','lampiran','sapaan','perihal','yth','alumni','kegiatan','tempat','pending','keperluan','penutupAuto','penutup','kota','tglSurat','jabatan','nama','ttdSize'];
+const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],BLN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const PERIHAL={tempat:'Permohonan Peminjaman Tempat',undangan:'Undangan Kegiatan',pemateri:'Permohonan Pemateri'};
+const TYPO={sekertaris:'sekretaris',silahkan:'silakan',ijin:'izin',analisa:'analisis',resiko:'risiko',aktifitas:'aktivitas',praktek:'praktik',nasehat:'nasihat',trima:'terima',kegitan:'kegiatan',permohonon:'permohonan'};
+let jad=[{s:'',e:'',w:''}],logo='',ttd='';
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const val=id=>$(id).type==='checkbox'?$(id).checked:$(id).value;
+function fmt(d){if(!d)return'';const[y,m,g]=d.split('-').map(Number);return HARI[new Date(y,m-1,g).getDay()]+', '+g+' '+BLN[m-1]+' '+y}
+function fmtTgl(d){if(!d)return'';const[y,m,g]=d.split('-').map(Number);return g+' '+BLN[m-1]+' '+y}
+const nomor=()=>String(val('urut')).padStart(3,'0')+'/'+val('kode');
+function penutupAuto(){const s=val('sapaan'),j=val('jenis');
+ return j==='undangan'?`Demikian undangan ini kami sampaikan. Atas kehadiran ${s}, kami ucapkan terima kasih.`
+ :j==='pemateri'?`Demikian permohonan kami sampaikan. Atas kesediaan ${s}, kami ucapkan terima kasih.`
+ :`Demikian permohonan kami sampaikan. Atas perhatian dan bantuan ${s}, kami ucapkan terima kasih.`}
+function pembuka(){const k=esc(val('kegiatan')||'…'),j=val('jenis'),s=val('sapaan');
+ return j==='undangan'?`Dengan ini kami mengundang ${s} untuk hadir pada kegiatan <b>${k}</b> yang akan dilaksanakan pada:`
+ :j==='pemateri'?`Sehubungan dengan kegiatan <b>${k}</b>, kami memohon kesediaan ${s} menjadi pemateri pada:`
+ :`Sehubungan dengan akan dilaksanakannya kegiatan <b>${k}</b>, kami mengajukan permohonan peminjaman tempat pada:`}
+function tempatTeks(){return val('tempat')||(val('pending')?'Gedung Sekretariat Ormawa':'')}
+function render(){
+ if(val('penutupAuto')){$('penutup').value=penutupAuto();$('penutup').disabled=true}else $('penutup').disabled=false;
+ const p=$('paper');p.style.fontFamily=`"${val('fontFam')}",serif`;p.style.fontSize=val('fontSize')+'pt';
+ const lw=val('logoSize')+'px';
+ const rows=jad.filter(r=>r.s).map((r,i,a)=>{const n=a.length>1?` (${i+1})`:'';const t=r.e&&r.e!==r.s?fmt(r.s)+' s.d. '+fmt(r.e):fmt(r.s);
+  return `<tr><td>Hari, tanggal${n}</td><td>:</td><td>${t}</td></tr><tr><td>Waktu${n}</td><td>:</td><td>${esc(r.w)}</td></tr>`}).join('');
+ p.innerHTML=`<div class="kop">${logo?`<img src="${logo}" style="width:${lw};height:${lw}">`:''}<div class="t"><b>${esc(val('orgNama'))}</b>${esc(val('orgAlamat')).replace(/\n/g,'<br>')}</div>${logo?`<div style="width:${lw}"></div>`:''}</div>
+ <p class="r">${esc(val('kota'))}, ${fmtTgl(val('tglSurat'))}</p>
+ <table style="margin-left:0"><tr><td>Nomor</td><td>:</td><td>${esc(nomor())}</td></tr><tr><td>Lampiran</td><td>:</td><td>${esc(val('lampiran'))}</td></tr><tr><td>Perihal</td><td>:</td><td><b>${esc(val('perihal'))}</b></td></tr></table>
+ <p style="margin-bottom:0">Yth. ${esc(val('yth'))}</p><p>di Tempat</p>
+ <p>Dengan hormat,</p><p>${pembuka()}</p>
+ <table><tr><td>Kegiatan</td><td>:</td><td>${esc(val('kegiatan'))}</td></tr>${rows}<tr><td>Tempat</td><td>:</td><td>${esc(tempatTeks())}</td></tr></table>
+ ${val('keperluan').trim()?`<p>${esc(val('keperluan')).replace(/\n/g,'<br>')}</p>`:''}
+ <p>${esc(val('penutup'))}</p>
+ <div class="ttd"><div>Hormat kami,<br>${esc(val('jabatan'))}</div>${ttd?`<img src="${ttd}" style="height:${val('ttdSize')}px;width:auto">`:'<div style="height:70px"></div>'}<b><u>${esc(val('nama'))}</u></b></div>`;
+ cek();autosave();
+}
+function teksMasalah(lab,t,out){if(!t)return;
+ if(/ {2,}/.test(t))out.push(`Ada spasi ganda di ${lab}`);
+ if(/\s[,.;:]/.test(t))out.push(`Ada spasi sebelum tanda baca di ${lab}`);
+ if(/\b([a-z]{3,})\s+\1\b/i.test(t))out.push(`Ada kata yang terulang di ${lab}`);
+ if(/[.!?]\s+[a-z]/.test(t))out.push(`Awal kalimat di ${lab} perlu huruf kapital`);
+ if(/Dengan Hormat/.test(t))out.push(`Tulisan yang benar “Dengan hormat” (h kecil), cek ${lab}`);
+ for(const k in TYPO)if(new RegExp('\\b'+k+'\\b','i').test(t))out.push(`Di ${lab} sebaiknya “${TYPO[k]}”, bukan “${k}”`);
+ if(/\[.*?\]|xxx|\.\.\./i.test(t))out.push(`Masih ada isian sementara di ${lab}`)}
+function cek(){const w=[],i=[],j=val('jenis'),pr=val('perihal').toLowerCase(),pn=val('penutup'),s=val('sapaan');
+ [['perihal','Perihal'],['yth','Penerima (Yth.)'],['kegiatan','Nama kegiatan'],['nama','Nama penandatangan']].forEach(([id,l])=>{if(!val(id).trim())w.push(`${l} masih kosong`)});
+ if(!tempatTeks())w.push('Tempat kegiatan masih kosong');
+ if(!jad.some(r=>r.s))w.push('Tanggal kegiatan belum diisi');
+ jad.forEach((r,n)=>{if(r.s&&r.e&&r.e<r.s)w.push(`Jadwal ${n+1}: tanggal selesai lebih awal dari tanggal mulai`);if(r.s&&!r.w.trim())w.push(`Jadwal ${n+1}: waktu belum diisi`);if(r.s&&val('tglSurat')&&r.s<val('tglSurat'))w.push(`Jadwal ${n+1}: kegiatan jatuh sebelum tanggal surat`)});
+ if(!val('tglSurat'))w.push('Tanggal surat belum diisi');
+ const kw={tempat:/tempat|peminjaman/,undangan:/undangan/,pemateri:/pemateri|pembicara/}[j];
+ if(pr&&!kw.test(pr))w.push('Perihal belum sesuai dengan jenis surat yang dipilih');
+ if(j==='undangan'&&/permohonan/i.test(pn))w.push('Penutup memakai kata “permohonan”, padahal ini undangan');
+ if(j!=='undangan'&&/pemberitahuan|undangan/i.test(pn))w.push('Penutup memakai kata “pemberitahuan/undangan”, padahal ini permohonan');
+ const lain=s==='Bapak/Ibu'?/saudara/i:/\bbapak\b|\bibu\b/i;
+ if(lain.test(val('keperluan')+' '+pn))w.push(`Sapaan di isi surat bercampur, seharusnya “${s}” saja`);
+ if(val('alumni')&&val('yth')&&!/,|\b(Dr|Prof|Ir|Drs|Dra|H|Hj)\b\.?|\bS\.|\bM\./.test(val('yth')))w.push('Penerima alumni, gelar belum tertulis. Coba tanyakan gelarnya dulu');
+ if(store.get('surat_riwayat',[]).some(x=>x.nomor===nomor()))w.push(`Nomor ${nomor()} sudah ada di riwayat`);
+ [['perihal','perihal'],['kegiatan','nama kegiatan'],['keperluan','keterangan'],['penutup','penutup'],['tempat','tempat']].forEach(([id,l])=>teksMasalah(l,val(id),w));
+ if(/[a-z0-9]$/i.test(val('penutup').trim()))w.push('Penutup belum diakhiri tanda titik');
+ if(val('pending'))i.push('Tempat masih sementara. Ganti dengan tempat resmi begitu disposisi turun');
+ if(!ttd)i.push('Tanda tangan digital belum ditambahkan (lewati bila ditandatangani langsung)');
+ const u=[...new Set(w)];
+ $('chk').innerHTML=`<h3>${u.length?`Ada ${u.length} hal yang perlu dicek`:'Surat sudah rapi'}</h3><ul>${u.map(x=>`<li>${esc(x)}</li>`).join('')}${i.map(x=>`<li class="i">${esc(x)}</li>`).join('')}${u.length?'':'<li class="ok">Penulisan dan format sudah sesuai</li>'}</ul>`}
+function snap(){const o={};IDS.forEach(k=>o[k]=val(k));o.jad=jad;o.logo=logo;o.ttd=ttd;return o}
+function muat(o){IDS.forEach(k=>{if(o[k]===undefined)return;if($(k).type==='checkbox')$(k).checked=o[k];else $(k).value=o[k]});jad=o.jad||[{s:'',e:'',w:''}];logo=o.logo||'';ttd=o.ttd||'';gambarJad();clr(false);if(ttd)drawImg(ttd);render()}
+function autosave(){store.set('surat_draf',snap())}
+function gambarJad(){$('jadwal').innerHTML=jad.map((r,n)=>`<div class="row"><input type="date" data-i="${n}" data-k="s" value="${r.s}"><input type="date" data-i="${n}" data-k="e" value="${r.e}" title="Tanggal selesai"><input data-i="${n}" data-k="w" placeholder="Waktu, mis. 08.00 – selesai" value="${esc(r.w)}"><button type="button" data-del="${n}">×</button></div>`).join('')}
+$('jadwal').addEventListener('input',e=>{const t=e.target;if(t.dataset.k){jad[t.dataset.i][t.dataset.k]=t.value;render()}});
+$('jadwal').addEventListener('click',e=>{const d=e.target.dataset.del;if(d!==undefined){jad.splice(d,1);if(!jad.length)jad=[{s:'',e:'',w:''}];gambarJad();render()}});
+$('addJ').onclick=()=>{jad.push({s:'',e:'',w:''});gambarJad();render()};
+IDS.forEach(k=>$(k).addEventListener('input',()=>render()));
+$('jenis').addEventListener('change',()=>{$('perihal').value=PERIHAL[$('jenis').value];render()});
+const rd=(f,cb)=>{if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(f)};
+$('logoFile').onchange=e=>rd(e.target.files[0],d=>{logo=d;render()});
+$('ttdFile').onchange=e=>rd(e.target.files[0],d=>{ttd=d;drawImg(d);render()});
+const cv=$('cv'),cx=cv.getContext('2d');let dr=false;
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]}
+cv.addEventListener('pointerdown',e=>{dr=true;cv.setPointerCapture(e.pointerId);cx.lineWidth=3;cx.lineCap='round';cx.strokeStyle='#000';cx.beginPath();const[x,y]=pos(e);cx.moveTo(x,y)});
+cv.addEventListener('pointermove',e=>{if(!dr)return;const[x,y]=pos(e);cx.lineTo(x,y);cx.stroke()});
+cv.addEventListener('pointerup',()=>{if(!dr)return;dr=false;ttd=cv.toDataURL();render()});
+function drawImg(d){const im=new Image();im.onload=()=>{cx.clearRect(0,0,cv.width,cv.height);const k=Math.min(cv.width/im.width,cv.height/im.height);cx.drawImage(im,0,0,im.width*k,im.height*k)};im.src=d}
+function clr(reset=true){cx.clearRect(0,0,cv.width,cv.height);if(reset)ttd=''}
+$('clrTtd').onclick=()=>{clr();render()};
+function judul(x){return `${x.nomor} – Yth. ${x.yth||'-'} – ${x.ket||'-'}`}
+function riwayat(){const q=$('cari').value.toLowerCase(),L=store.get('surat_riwayat',[]).filter(x=>judul(x).toLowerCase().includes(q));
+ $('riw').innerHTML=L.length?L.map(x=>`<div class="hi"><div>${esc(judul(x))}<small>Disimpan ${esc(x.waktu)}</small></div><div><button data-buka="${x.id}">Buka</button> <button data-hapus="${x.id}">Hapus</button></div></div>`).join(''):'<small style="color:var(--mut)">Belum ada surat tersimpan.</small>'}
+$('cari').oninput=riwayat;
+$('riw').addEventListener('click',e=>{const L=store.get('surat_riwayat',[]);
+ if(e.target.dataset.buka){const x=L.find(y=>y.id==e.target.dataset.buka);if(x){muat(x.data);scrollTo({top:0,behavior:'smooth'})}}
+ if(e.target.dataset.hapus){store.set('surat_riwayat',L.filter(y=>y.id!=e.target.dataset.hapus));riwayat();render()}});
+$('btnSave').onclick=()=>{const L=store.get('surat_riwayat',[]);
+ L.unshift({id:Date.now(),nomor:nomor(),yth:val('yth'),ket:(val('kegiatan')||val('perihal')),waktu:new Date().toLocaleString('id-ID'),data:snap()});
+ store.set('surat_riwayat',L);$('urut').value=+val('urut')+1;riwayat();render()};
+$('btnNew').onclick=()=>{$('yth').value='';$('kegiatan').value='';$('tempat').value='';$('keperluan').value='';$('pending').checked=false;$('alumni').checked=false;jad=[{s:'',e:'',w:''}];gambarJad();render()};
+$('btnPdf').onclick=()=>window.print();
+$('btnDoc').onclick=()=>{const h=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>body{font-family:"${val('fontFam')}";font-size:${val('fontSize')}pt}td{vertical-align:top}.kop{border-bottom:3px double #000}</style></head><body>${$('paper').innerHTML}</body></html>`;
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff',h],{type:'application/msword'}));a.download=`Surat ${nomor().replace(/\//g,'-')}.doc`;a.click()};
+// awal
+const d0=store.get('surat_draf',null);
+if(d0)muat(d0);else{$('perihal').value=PERIHAL.tempat;$('tglSurat').valueAsDate=new Date();gambarJad();render()}
+if(!$('tglSurat').value)$('tglSurat').valueAsDate=new Date();
+riwayat();render();
+
+function muatSmk(){const f=$('smkFrame');if(f.dataset.on)return;f.dataset.on=1;
+ f.srcdoc=$('smkSrc').textContent.replace(/<\/script>/g,'</'+'script>');
+ f.onload=()=>{try{const d=f.contentDocument,h=()=>f.style.height=Math.max(900,d.documentElement.scrollHeight)+'px';h();new ResizeObserver(h).observe(d.body)}catch(e){}}}
+function show(v){if(v==="vSmk")muatSmk();['vOrg','vSmk'].forEach(i=>$(i).hidden=i!==v);document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));try{history.replaceState(null,'','#'+v)}catch(e){}}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+show(location.hash==='#vSmk'?'vSmk':'vOrg');
+</script>
+</body>
+</html>
